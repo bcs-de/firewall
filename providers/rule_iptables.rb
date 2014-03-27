@@ -50,6 +50,7 @@ def apply_rule(type=nil)
   end
   firewall_rule << "-s #{@new_resource.source} " if @new_resource.source
   firewall_rule << "-p #{@new_resource.protocol} " if @new_resource.protocol
+  firewall_rule << "--sport #{@new_resource.port} " if @new_resource.port
   firewall_rule << "--dport #{@new_resource.dest_port} " if @new_resource.dest_port
   firewall_rule << "-i #{@new_resource.interface} " if @new_resource.interface
   firewall_rule << "-o #{@new_resource.dest_interface} " if @new_resource.dest_interface
