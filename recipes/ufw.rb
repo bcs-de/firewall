@@ -24,7 +24,7 @@
     :provider => Chef::Provider::FirewallUfw
   )
   Chef::Platform.set(
-    :resource => :firewall,
+    :resource => :firewall_rule,
     :provider => Chef::Provider::FirewallRuleUfw
   )
 end
