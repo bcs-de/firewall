@@ -30,10 +30,14 @@ action :reject do
   apply_rule('reject')
 end
 
+action :masquerade do
+  apply_rule('masquerade')
+end
+
 private
 
 $chain = { :in => "INPUT", :out => "OUTPUT", :pre => "PREROUTING", :post => "POSTROUTING"}#, nil => "FORWARD"}
-$target = { "allow" => "ACCEPT", "reject" => "REJECT", "deny" => "DROP" }
+$target = { "allow" => "ACCEPT", "reject" => "REJECT", "deny" => "DROP", 'masquerade' => 'MASQUERADE' }
 
 def apply_rule(type=nil)
   if @new_resource.position
@@ -47,6 +51,9 @@ def apply_rule(type=nil)
     firewall_rule << "#{$chain[@new_resource.direction]} "
   else
     firewall_rule << "FORWARD "
+  end
+  if [:pre, :post].include?(@new_resource.direction)
+    firewall_rule << '-t nat '
   end
   firewall_rule << "-s #{@new_resource.source} " if @new_resource.source
   firewall_rule << "-p #{@new_resource.protocol} " if @new_resource.protocol
