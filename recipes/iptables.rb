@@ -30,3 +30,25 @@ package "iptables"
   )
 end
 
+package 'iptables-persistent'
+
+service 'iptables-persistent' do
+  action :enable
+end
+
+execute 'save iptables rules' do
+  command 'iptables-save > /etc/iptables/rules.v4'
+  action :nothing
+end
+
+template '/etc/sysctl.d/ip_forward.conf' do
+  source 'sysctl_ipforward.erb'
+  variables(
+    ipv4_forwarding: true,
+    ipv6_forwarding: false
+  )
+end
+
+execute 'sysctl net.ipv4.ip_forward=1' do
+  only_if 'sysctl net.ipv4.ip_forward |grep 0'
+end
