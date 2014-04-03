@@ -20,7 +20,7 @@
 
 IP_CIDR_VALID_REGEX = /\b(?:\d{1,3}\.){3}\d{1,3}\b(\/[0-3]?[0-9])?/
 
-actions :allow, :deny, :reject, :masquerade
+actions :allow, :deny, :reject, :masquerade, :redirect
 
 attribute :port, :kind_of => Integer
 attribute :ports, :kind_of => Array
@@ -35,6 +35,7 @@ attribute :dest_port, :kind_of => Integer
 attribute :dest_interface, :kind_of => String
 attribute :position, :kind_of => Integer
 attribute :stateful, :kind_of => String
+attribute :redirect_port, :kind_of => Integer
 
 def initialize(name, run_context = nil)
   super

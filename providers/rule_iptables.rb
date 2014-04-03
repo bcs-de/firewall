@@ -34,10 +34,14 @@ action :masquerade do
   apply_rule('masquerade')
 end
 
+action :redirect do
+  apply_rule('redirect')
+end
+
 private
 
 $chain = { :in => "INPUT", :out => "OUTPUT", :pre => "PREROUTING", :post => "POSTROUTING"}#, nil => "FORWARD"}
-$target = { "allow" => "ACCEPT", "reject" => "REJECT", "deny" => "DROP", 'masquerade' => 'MASQUERADE' }
+$target = { "allow" => "ACCEPT", "reject" => "REJECT", "deny" => "DROP", 'masquerade' => 'MASQUERADE', 'redirect' => 'REDIRECT' }
 
 def apply_rule(type=nil)
   if @new_resource.position
@@ -64,6 +68,7 @@ def apply_rule(type=nil)
   firewall_rule << "-d #{@new_resource.destination} " if @new_resource.destination
   firewall_rule << "-m state --state #{@new_resource.stateful} " if @new_resource.stateful
   firewall_rule << "-j #{$target[type]} "
+  firewall_rule << "--to-ports #{@new_resource.redirect_port} " if type == 'redirect'
   
   #TODO implement logging for :connections :packets
   
@@ -72,7 +77,7 @@ def apply_rule(type=nil)
     shell_out!(firewall_command+firewall_rule)
     Chef::Log.info("#{@new_resource} #{type} rule added into iptables")
     @new_resource.updated_by_last_action(true)
-    @new_resource.notifies(:run, 'execute[save iptables rules]', :delayed)
+    @new_resource.notifies(:run, @new_resource.resources(execute: 'save iptables rules'), :delayed)
   else
     Chef::Log.debug("#{@new_resource} #{type} rule exists..skipping.")
   end
